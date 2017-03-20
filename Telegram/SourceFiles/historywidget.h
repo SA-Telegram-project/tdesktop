@@ -571,12 +571,8 @@ public:
 
 	QRect historyRect() const;
 
-	void updateSendAction(History *history, SendAction::Type type, int32 progress = 0);
-	void cancelSendAction(History *history, SendAction::Type type);
-
 	void updateRecentStickers();
 	void stickersInstalled(uint64 setId);
-	void sendActionDone(const MTPBool &result, mtpRequestId req);
 
 	void destroyData();
 
@@ -754,8 +750,6 @@ public slots:
 	void onCopyPostLink();
 	void onFieldBarCancel();
 
-	void onCancelSendAction();
-
 	void onStickerPackInfo();
 
 	void onPreviewParse();
@@ -772,7 +766,6 @@ public slots:
 	void onPhotoProgress(const FullMsgId &msgId);
 	void onDocumentProgress(const FullMsgId &msgId);
 
-	void onPhotoFailed(const FullMsgId &msgId);
 	void onDocumentFailed(const FullMsgId &msgId);
 
 	void onReportSpamClicked();
@@ -1174,7 +1167,6 @@ private:
 	QTimer _animActiveTimer;
 	float64 _animActiveStart = 0;
 
-	QMap<QPair<History*, SendAction::Type>, mtpRequestId> _sendActionRequests;
 	QTimer _sendActionStopTimer;
 
 	TimeMs _saveDraftStart = 0;

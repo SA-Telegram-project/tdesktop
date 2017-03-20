@@ -340,7 +340,6 @@ public:
 	bool updateSendActionNeedsAnimating(TimeMs ms, bool force = false);
 	void unregSendAction(UserData *from);
 	bool updateSendActionNeedsAnimating(UserData *user, const MTPSendMessageAction &action);
-	bool mySendActionUpdated(SendAction::Type type, bool doing);
 	bool paintSendAction(Painter &p, int x, int y, int availableWidth, int outerWidth, style::color color, TimeMs ms);
 
 	void clearLastKeyboard();
@@ -574,10 +573,9 @@ private:
 	TypingUsers _typing;
 	using SendActionUsers = QMap<UserData*, SendAction>;
 	SendActionUsers _sendActions;
-	QString _sendActionString;
-	Text _sendActionText;
-	Ui::SendActionAnimation _sendActionAnimation;
-	QMap<SendAction::Type, TimeMs> _mySendActions;
+    QString _sendActionString;
+    Text _sendActionText;
+    Ui::SendActionAnimation _sendActionAnimation;
 
 	int _pinnedIndex = 0; // > 0 for pinned dialogs
 

@@ -71,9 +71,7 @@ void FileUploader::upload(const FullMsgId &msgId, const FileLoadResultPtr &file)
 void FileUploader::currentFailed() {
 	Queue::iterator j = queue.find(uploading);
 	if (j != queue.end()) {
-		if (j->type() == SendMediaType::Photo) {
-			emit photoFailed(j.key());
-		} else if (j->type() == SendMediaType::File) {
+        if (j->type() == SendMediaType::File) {
 			DocumentData *doc = App::document(j->id());
 			if (doc->status == FileUploading) {
 				doc->status = FileUploadFailed;

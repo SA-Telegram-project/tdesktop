@@ -3247,8 +3247,7 @@ HistoryWidget::HistoryWidget(QWidget *parent) : TWidget(parent)
 	connect(_emojiPan, SIGNAL(photoSelected(PhotoData*)), this, SLOT(onPhotoSend(PhotoData*)));
 	connect(_emojiPan, SIGNAL(inlineResultSelected(InlineBots::Result*,UserData*)), this, SLOT(onInlineResultSend(InlineBots::Result*,UserData*)));
 	connect(_emojiPan, SIGNAL(updateStickers()), this, SLOT(updateStickers()));
-	connect(&_sendActionStopTimer, SIGNAL(timeout()), this, SLOT(onCancelSendAction()));
-	connect(&_previewTimer, SIGNAL(timeout()), this, SLOT(onPreviewTimeout()));
+    connect(&_previewTimer, SIGNAL(timeout()), this, SLOT(onPreviewTimeout()));
 	connect(Media::Capture::instance(), SIGNAL(error()), this, SLOT(onRecordError()));
 	connect(Media::Capture::instance(), SIGNAL(updated(quint16,qint32)), this, SLOT(onRecordUpdate(quint16,qint32)));
 	connect(Media::Capture::instance(), SIGNAL(done(QByteArray,VoiceWaveform,qint32)), this, SLOT(onRecordDone(QByteArray,VoiceWaveform,qint32)));
@@ -3261,8 +3260,6 @@ HistoryWidget::HistoryWidget(QWidget *parent) : TWidget(parent)
 	connect(&_updateHistoryItems, SIGNAL(timeout()), this, SLOT(onUpdateHistoryItems()));
 
 	_scrollTimer.setSingleShot(false);
-
-	_sendActionStopTimer.setSingleShot(true);
 
 	_animActiveTimer.setSingleShot(false);
 	connect(&_animActiveTimer, SIGNAL(timeout()), this, SLOT(onAnimActiveStep()));
@@ -3456,12 +3453,6 @@ void HistoryWidget::onTextChange() {
 	updateInlineBotQuery();
 	updateStickersByEmoji();
 
-	if (_peer && (!_peer->isChannel() || _peer->isMegagroup())) {
-		if (!_inlineBot && !_editMsgId && (_textUpdateEvents.testFlag(TextUpdateEvent::SendTyping))) {
-			updateSendAction(_history, SendAction::Type::Typing);
-		}
-	}
-
 	updateSendButtonType();
 	if (showRecordButton()) {
 		_previewCancelled = false;
@@ -3581,60 +3572,12 @@ void HistoryWidget::writeDrafts(Data::Draft **localDraft, Data::Draft **editDraf
 	}
 }
 
-void HistoryWidget::cancelSendAction(History *history, SendAction::Type type) {
-	auto i = _sendActionRequests.find(qMakePair(history, type));
-	if (i != _sendActionRequests.cend()) {
-		MTP::cancel(i.value());
-		_sendActionRequests.erase(i);
-	}
-}
-
-void HistoryWidget::onCancelSendAction() {
-	cancelSendAction(_history, SendAction::Type::Typing);
-}
-
-void HistoryWidget::updateSendAction(History *history, SendAction::Type type, int32 progress) {
-	if (!history) return;
-
-	auto doing = (progress >= 0);
-	if (history->mySendActionUpdated(type, doing)) {
-		cancelSendAction(history, type);
-		if (doing) {
-			using Type = SendAction::Type;
-			MTPsendMessageAction action;
-			switch (type) {
-			case Type::Typing: action = MTP_sendMessageTypingAction(); break;
-			case Type::RecordVideo: action = MTP_sendMessageRecordVideoAction(); break;
-			case Type::UploadVideo: action = MTP_sendMessageUploadVideoAction(MTP_int(progress)); break;
-			case Type::RecordVoice: action = MTP_sendMessageRecordAudioAction(); break;
-			case Type::UploadVoice: action = MTP_sendMessageUploadAudioAction(MTP_int(progress)); break;
-			case Type::UploadPhoto: action = MTP_sendMessageUploadPhotoAction(MTP_int(progress)); break;
-			case Type::UploadFile: action = MTP_sendMessageUploadDocumentAction(MTP_int(progress)); break;
-			case Type::ChooseLocation: action = MTP_sendMessageGeoLocationAction(); break;
-			case Type::ChooseContact: action = MTP_sendMessageChooseContactAction(); break;
-			case Type::PlayGame: action = MTP_sendMessageGamePlayAction(); break;
-			}
-			_sendActionRequests.insert(qMakePair(history, type), MTP::send(MTPmessages_SetTyping(history->peer->input, action), rpcDone(&HistoryWidget::sendActionDone)));
-			if (type == Type::Typing) _sendActionStopTimer.start(5000);
-		}
-	}
-}
-
 void HistoryWidget::updateRecentStickers() {
 	_emojiPan->refreshStickers();
 }
 
 void HistoryWidget::stickersInstalled(uint64 setId) {
 	_emojiPan->stickersInstalled(setId);
-}
-
-void HistoryWidget::sendActionDone(const MTPBool &result, mtpRequestId req) {
-	for (auto i = _sendActionRequests.begin(), e = _sendActionRequests.end(); i != e; ++i) {
-		if (i.value() == req) {
-			_sendActionRequests.erase(i);
-			break;
-		}
-	}
 }
 
 void HistoryWidget::activate() {
@@ -3687,9 +3630,6 @@ void HistoryWidget::onRecordUpdate(quint16 level, qint32 samples) {
 		stopRecording(_peer && samples > 0 && _inField);
 	}
 	updateField();
-	if (_peer && (!_peer->isChannel() || _peer->isMegagroup())) {
-		updateSendAction(_history, SendAction::Type::RecordVoice);
-	}
 }
 
 void HistoryWidget::updateStickers() {
@@ -4353,8 +4293,7 @@ void HistoryWidget::showHistory(const PeerId &peerId, MsgId showAtMsgId, bool re
 				_send->finishAnimation();
 			}
 			return;
-		}
-		updateSendAction(_history, SendAction::Type::Typing, -1);
+        }
 	}
 
 	if (!cAutoPlayGif()) {
@@ -5817,9 +5756,6 @@ void HistoryWidget::stopRecording(bool send) {
 
 	_recording = false;
 	_recordingSamples = 0;
-	if (_peer && (!_peer->isChannel() || _peer->isMegagroup())) {
-		updateSendAction(_history, SendAction::Type::RecordVoice, -1);
-	}
 
 	updateControlsVisibility();
 	activate();
@@ -5935,9 +5871,6 @@ void HistoryWidget::botCallbackDone(BotCallbackInfo info, const MTPmessages_BotC
 			if (info.game) {
 				url = appendShareGameScoreUrl(url, info.msgId);
 				BotGameUrlClickHandler(info.bot, url).onClick(Qt::LeftButton);
-				if (item && (!item->history()->peer->isChannel() || item->history()->peer->isMegagroup())) {
-					updateSendAction(item->history(), SendAction::Type::PlayGame);
-				}
 			} else {
 				UrlClickHandler(url).onClick(Qt::LeftButton);
 			}
@@ -6829,8 +6762,7 @@ void HistoryWidget::sendFileConfirmed(const FileLoadResultPtr &file) {
 	connect(App::uploader(), SIGNAL(thumbDocumentReady(const FullMsgId&,bool,const MTPInputFile&,const MTPInputFile&)), this, SLOT(onThumbDocumentUploaded(const FullMsgId&,bool,const MTPInputFile&, const MTPInputFile&)), Qt::UniqueConnection);
 	connect(App::uploader(), SIGNAL(photoProgress(const FullMsgId&)), this, SLOT(onPhotoProgress(const FullMsgId&)), Qt::UniqueConnection);
 	connect(App::uploader(), SIGNAL(documentProgress(const FullMsgId&)), this, SLOT(onDocumentProgress(const FullMsgId&)), Qt::UniqueConnection);
-	connect(App::uploader(), SIGNAL(photoFailed(const FullMsgId&)), this, SLOT(onPhotoFailed(const FullMsgId&)), Qt::UniqueConnection);
-	connect(App::uploader(), SIGNAL(documentFailed(const FullMsgId&)), this, SLOT(onDocumentFailed(const FullMsgId&)), Qt::UniqueConnection);
+    connect(App::uploader(), SIGNAL(documentFailed(const FullMsgId&)), this, SLOT(onDocumentFailed(const FullMsgId&)), Qt::UniqueConnection);
 
 	App::uploader()->upload(newId, file);
 
@@ -6976,10 +6908,6 @@ void HistoryWidget::onThumbDocumentUploaded(const FullMsgId &newId, bool silent,
 
 void HistoryWidget::onPhotoProgress(const FullMsgId &newId) {
 	if (auto item = App::histItemById(newId)) {
-		auto photo = (item->getMedia() && item->getMedia()->type() == MediaTypePhoto) ? static_cast<HistoryPhoto*>(item->getMedia())->photo() : nullptr;
-		if (!item->isPost()) {
-			updateSendAction(item->history(), SendAction::Type::UploadPhoto, 0);
-		}
 		Ui::repaintHistoryItem(item);
 	}
 }
@@ -6988,30 +6916,12 @@ void HistoryWidget::onDocumentProgress(const FullMsgId &newId) {
 	if (auto item = App::histItemById(newId)) {
 		auto media = item->getMedia();
 		auto document = media ? media->getDocument() : nullptr;
-		if (!item->isPost()) {
-			updateSendAction(item->history(), (document && document->voice()) ? SendAction::Type::UploadVoice : SendAction::Type::UploadFile, document ? document->uploadOffset : 0);
-		}
 		Ui::repaintHistoryItem(item);
-	}
-}
-
-void HistoryWidget::onPhotoFailed(const FullMsgId &newId) {
-	HistoryItem *item = App::histItemById(newId);
-	if (item) {
-		if (!item->isPost()) {
-			updateSendAction(item->history(), SendAction::Type::UploadPhoto, -1);
-		}
-//		Ui::repaintHistoryItem(item);
 	}
 }
 
 void HistoryWidget::onDocumentFailed(const FullMsgId &newId) {
 	if (auto item = App::histItemById(newId)) {
-		auto media = item->getMedia();
-		auto document = media ? media->getDocument() : nullptr;
-		if (!item->isPost()) {
-			updateSendAction(item->history(), (document && document->voice()) ? SendAction::Type::UploadVoice : SendAction::Type::UploadFile, -1);
-		}
 		Ui::repaintHistoryItem(item);
 	}
 }

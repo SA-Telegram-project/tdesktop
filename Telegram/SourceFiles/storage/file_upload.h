@@ -52,7 +52,6 @@ signals:
 	void photoProgress(const FullMsgId &msgId);
 	void documentProgress(const FullMsgId &msgId);
 
-	void photoFailed(const FullMsgId &msgId);
 	void documentFailed(const FullMsgId &msgId);
 
 private:

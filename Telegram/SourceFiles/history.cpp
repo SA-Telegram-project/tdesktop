@@ -227,29 +227,6 @@ bool History::updateSendActionNeedsAnimating(UserData *user, const MTPSendMessag
 	return updateSendActionNeedsAnimating(ms, true);
 }
 
-bool History::mySendActionUpdated(SendAction::Type type, bool doing) {
-	auto ms = getms(true);
-	auto i = _mySendActions.find(type);
-	if (doing) {
-		if (i == _mySendActions.cend()) {
-			_mySendActions.insert(type, ms + kSetMyActionForMs);
-		} else if (i.value() > ms + (kSetMyActionForMs / 2)) {
-			return false;
-		} else {
-			i.value() = ms + kSetMyActionForMs;
-		}
-	} else {
-		if (i == _mySendActions.cend()) {
-			return false;
-		} else if (i.value() <= ms) {
-			return false;
-		} else {
-			_mySendActions.erase(i);
-		}
-	}
-	return true;
-}
-
 bool History::paintSendAction(Painter &p, int x, int y, int availableWidth, int outerWidth, style::color color, TimeMs ms) {
 	if (_sendActionAnimation) {
 		_sendActionAnimation.paint(p, color, x, y + st::normalFont->ascent, outerWidth, ms);
