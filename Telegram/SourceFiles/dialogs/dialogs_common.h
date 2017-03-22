@@ -29,6 +29,7 @@ enum class SortMode {
 	Date = 0x00,
 	Name = 0x01,
 	Add  = 0x02,
+    UnreadFirst = 0x03,
 };
 
 enum class Mode {

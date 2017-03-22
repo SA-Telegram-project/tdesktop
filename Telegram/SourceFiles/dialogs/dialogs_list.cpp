@@ -152,26 +152,58 @@ Row *List::addByName(History *history) {
 }
 
 void List::adjustByPos(Row *row) {
-	if (_sortMode != SortMode::Date || !_begin) return;
-
-	Row *change = row;
-	if (change != _begin && _begin->history()->sortKeyInChatList() < row->history()->sortKeyInChatList()) {
-		change = _begin;
-	} else {
-		while (change->_prev && change->_prev->history()->sortKeyInChatList() < row->history()->sortKeyInChatList()) {
-			change = change->_prev;
-		}
-	}
-	if (!insertBefore(row, change)) {
-		if (change->_next != _end && _end->_prev->history()->sortKeyInChatList() > row->history()->sortKeyInChatList()) {
-			change = _end->_prev;
-		} else {
-			while (change->_next != _end && change->_next->history()->sortKeyInChatList() > row->history()->sortKeyInChatList()) {
-				change = change->_next;
-			}
-		}
-		insertAfter(row, change);
-	}
+    switch (_sortMode) {
+        case SortMode::UnreadFirst:
+            insertAndSortByDate(row);
+            insertAndSortByUnread(row);
+            break;
+        case SortMode::Date:
+            insertAndSortByDate(row);
+    }
+}
+void List::insertAndSortByUnread(Row *row) {
+    if (!_begin) return;
+    
+    Row *change = row;
+    if (change != _begin && _begin->history()->sortKeyInChatList() < row->history()->sortKeyInChatList() && row->history()->unreadCount() > 0) {
+        change = _begin;
+    } else {
+        while (change->_prev && change->_prev->history()->unreadCount() <= 0 && row->history()->unreadCount() > 0) {
+            change = change->_prev;
+        }
+    }
+    if (!insertBefore(row, change)) {
+        if (change->_next != _end && _end->_prev->history()->sortKeyInChatList() > row->history()->sortKeyInChatList() && row->history()->unreadCount() <= 0) {
+            change = _end->_prev;
+        } else {
+            while (change->_next != _end && change->_next->history()->unreadCount() > 0 && row->history()->unreadCount() <= 0) {
+                change = change->_next;
+            }
+        }
+        insertAfter(row, change);
+    }
+}
+void List::insertAndSortByDate(Row *row) {
+    if (!_begin) return;
+    
+    Row *change = row;
+    if (change != _begin && _begin->history()->sortKeyInChatList() < row->history()->sortKeyInChatList()) {
+        change = _begin;
+    } else {
+        while (change->_prev && change->_prev->history()->sortKeyInChatList() < row->history()->sortKeyInChatList()) {
+            change = change->_prev;
+        }
+    }
+    if (!insertBefore(row, change)) {
+        if (change->_next != _end && _end->_prev->history()->sortKeyInChatList() > row->history()->sortKeyInChatList()) {
+            change = _end->_prev;
+        } else {
+            while (change->_next != _end && change->_next->history()->sortKeyInChatList() > row->history()->sortKeyInChatList()) {
+                change = change->_next;
+            }
+        }
+        insertAfter(row, change);
+    }
 }
 
 bool List::moveToTop(PeerId peerId) {
