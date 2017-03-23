@@ -1207,7 +1207,7 @@ bool _readSetting(quint32 blockId, QDataStream &stream, int version, ReadSetting
         qint32 v;
         stream >> v;
         if (!_checkStreamStatus(stream)) return false;
-        if (v == Dialogs::SortMode::Date || v == Dialogs::SortMode::UnreadFirst)
+        if (v == (int32)Dialogs::SortMode::Date || v == (int32)Dialogs::SortMode::UnreadFirst)
             cSetSortMode(v);
 
     } break;
