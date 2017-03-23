@@ -35,6 +35,7 @@ Copyright (c) 2014-2017 John Preston, https://desktop.telegram.org
 #include "application.h"
 #include "apiwrap.h"
 #include "auth_session.h"
+#include "dialogs/dialogs_common.h"
 
 #include <openssl/evp.h>
 
@@ -571,7 +572,8 @@ enum {
 	dbiDialogsWidthRatio = 0x48,
 	dbiUseExternalVideoPlayer = 0x49,
 	dbiDcOptions = 0x4a,
-	dbiMtpAuthorization = 0x4b,
+    dbiMtpAuthorization = 0x4b,
+    dbiDialogSortMode = 0x4c,
 
 	dbiEncryptedWithSalt = 333,
 	dbiEncrypted = 444,
@@ -1199,7 +1201,16 @@ bool _readSetting(quint32 blockId, QDataStream &stream, int version, ReadSetting
 		if (!_checkStreamStatus(stream)) return false;
 
 		cSetLangFile(v);
-	} break;
+    } break;
+
+    case dbiDialogSortMode: {
+        qint32 v;
+        stream >> v;
+        if (!_checkStreamStatus(stream)) return false;
+        if (v == Dialogs::SortMode::Date || v == Dialogs::SortMode::UnreadFirst)
+            cSetSortMode(v);
+
+    } break;
 
 	case dbiWindowPosition: {
 		TWindowPos pos;
@@ -2279,7 +2290,8 @@ void writeSettings() {
 	data.stream << quint32(dbiScale) << qint32(cConfigScale());
 	data.stream << quint32(dbiLang) << qint32(cLang());
 	data.stream << quint32(dbiDcOptions) << dcOptionsSerialized;
-	data.stream << quint32(dbiLangFile) << cLangFile();
+    data.stream << quint32(dbiLangFile) << cLangFile();
+    data.stream << quint32(dbiDialogSortMode) << qint32(cSortMode());
 
 	data.stream << quint32(dbiConnectionType) << qint32(Global::ConnectionType());
 	if (Global::ConnectionType() == dbictHttpProxy || Global::ConnectionType() == dbictTcpProxy) {

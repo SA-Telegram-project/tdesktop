@@ -243,6 +243,8 @@ inline void incrementRecentHashtag(RecentHashtagPack &recent, const QString &tag
 DeclareSetting(int32, Lang);
 DeclareSetting(QString, LangFile);
 
+DeclareSetting(int32, SortMode);
+
 DeclareSetting(QStringList, SendPaths);
 DeclareSetting(QString, StartUrl);
 

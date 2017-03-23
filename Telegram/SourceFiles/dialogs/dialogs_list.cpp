@@ -161,7 +161,9 @@ void List::adjustByPos(Row *row) {
             insertAndSortByDate(row);
     }
 }
+
 void List::insertAndSortByUnread(Row *row) {
+    t_assert(_sortMode == SortMode::UnreadFirst);
     if (!_begin) return;
     
     Row *change = row;
@@ -183,6 +185,7 @@ void List::insertAndSortByUnread(Row *row) {
         insertAfter(row, change);
     }
 }
+
 void List::insertAndSortByDate(Row *row) {
     if (!_begin) return;
     

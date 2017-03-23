@@ -109,7 +109,8 @@ void IndexedList::peerNameChanged(PeerData *peer, const PeerData::Names &oldName
 }
 
 void IndexedList::peerNameChanged(Mode list, PeerData *peer, const PeerData::Names &oldNames, const PeerData::NameFirstChars &oldChars) {
-	adjustNames(list, peer, oldNames, oldChars);
+    t_assert(_sortMode == SortMode::Date || _sortMode == SortMode::UnreadFirst);
+    adjustNames(list, peer, oldNames, oldChars);
 }
 
 void IndexedList::adjustByName(PeerData *peer, const PeerData::Names &oldNames, const PeerData::NameFirstChars &oldChars) {

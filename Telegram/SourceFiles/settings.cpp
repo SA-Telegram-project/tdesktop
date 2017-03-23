@@ -95,6 +95,8 @@ TimeMs gPasscodeLastTry = 0;
 int32 gLang = -2; // auto
 QString gLangFile;
 
+int32 gSortMode = 0x00; // Dialogs::SortMode::Date
+
 bool gRetina = false;
 float64 gRetinaFactor = 1.;
 int32 gIntRetinaFactor = 1;

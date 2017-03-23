@@ -34,6 +34,7 @@ Copyright (c) 2014-2017 John Preston, https://desktop.telegram.org
 #include "boxes/downloadpathbox.h"
 #include "boxes/connectionbox.h"
 #include "boxes/confirmbox.h"
+#include "boxes/dialogsortbox.h"
 
 namespace Settings {
 
@@ -149,7 +150,7 @@ void DownloadPathState::onTempDirClearFailed(int task) {
 #endif // OS_WIN_STORE
 
 ChatSettingsWidget::ChatSettingsWidget(QWidget *parent, UserData *self) : BlockWidget(parent, self, lang(lng_settings_section_chat_settings)) {
-	createControls();
+    createControls();
 }
 
 void ChatSettingsWidget::createControls() {
@@ -184,6 +185,7 @@ void ChatSettingsWidget::createControls() {
 	addChildRow(_sendByCtrlEnter, marginSkip, qsl("send_key"), 1, lang((cPlatform() == dbipMac || cPlatform() == dbipMacOld) ? lng_settings_send_cmdenter : lng_settings_send_ctrlenter), SLOT(onSendByCtrlEnter()), cCtrlEnter());
 	addChildRow(_automaticMediaDownloadSettings, marginSmall, lang(lng_media_auto_settings), SLOT(onAutomaticMediaDownloadSettings()));
 	addChildRow(_manageStickerSets, marginSmall, lang(lng_stickers_you_have), SLOT(onManageStickerSets()));
+    addChildRow(_changeDialogSortMode, marginSmall, "Change dialog sort mode", SLOT(onDialogSortMode()));
 }
 
 void ChatSettingsWidget::onReplaceEmoji() {
@@ -227,6 +229,10 @@ void ChatSettingsWidget::onAutomaticMediaDownloadSettings() {
 
 void ChatSettingsWidget::onManageStickerSets() {
 	Ui::show(Box<StickersBox>(StickersBox::Section::Installed));
+}
+
+void ChatSettingsWidget::onDialogSortMode() {
+    Ui::show(Box<DialogSortModeBox>());
 }
 
 } // namespace Settings

@@ -290,6 +290,9 @@ Copyright (c) 2014-2017 John Preston, https://desktop.telegram.org
 "lng_settings_send_enter" = "Send by Enter";
 "lng_settings_send_ctrlenter" = "Send by Ctrl+Enter";
 "lng_settings_send_cmdenter" = "Send by Cmd+Enter";
+"lng_settings_dialog_sort_mode" = "Dialog sort mode";
+"lng_settings_dialog_sort_mode_default" = "Default";
+"lng_settings_dialog_sort_mode_unread_first" = "Unread first";
 
 "lng_settings_section_background" = "Chat background";
 "lng_settings_bg_use_default" = "Use default color theme";

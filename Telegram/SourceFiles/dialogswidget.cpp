@@ -74,7 +74,7 @@ struct DialogsInner::PeerSearchResult {
 };
 
 DialogsInner::DialogsInner(QWidget *parent, QWidget *main) : SplittedWidget(parent)
-, _dialogs(std::make_unique<Dialogs::IndexedList>(Dialogs::SortMode::Date))
+, _dialogs(std::make_unique<Dialogs::IndexedList>((Dialogs::SortMode)cSortMode()))
 , _contactsNoDialogs(std::make_unique<Dialogs::IndexedList>(Dialogs::SortMode::Name))
 , _contacts(std::make_unique<Dialogs::IndexedList>(Dialogs::SortMode::Name))
 , _a_pinnedShifting(animation(this, &DialogsInner::step_pinnedShifting))
