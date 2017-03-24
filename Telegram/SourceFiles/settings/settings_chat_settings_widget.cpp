@@ -185,7 +185,7 @@ void ChatSettingsWidget::createControls() {
 	addChildRow(_sendByCtrlEnter, marginSkip, qsl("send_key"), 1, lang((cPlatform() == dbipMac || cPlatform() == dbipMacOld) ? lng_settings_send_cmdenter : lng_settings_send_ctrlenter), SLOT(onSendByCtrlEnter()), cCtrlEnter());
 	addChildRow(_automaticMediaDownloadSettings, marginSmall, lang(lng_media_auto_settings), SLOT(onAutomaticMediaDownloadSettings()));
 	addChildRow(_manageStickerSets, marginSmall, lang(lng_stickers_you_have), SLOT(onManageStickerSets()));
-    addChildRow(_changeDialogSortMode, marginSmall, "Change dialog sort mode", SLOT(onDialogSortMode()));
+	addChildRow(_changeDialogSortMode, marginSmall, lang(lng_settings_change_dialog_sort_mode), SLOT(onDialogSortMode()));
 }
 
 void ChatSettingsWidget::onReplaceEmoji() {
