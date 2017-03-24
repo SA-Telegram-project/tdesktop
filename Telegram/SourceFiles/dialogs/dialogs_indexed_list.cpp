@@ -163,7 +163,7 @@ void IndexedList::adjustNames(Mode list, PeerData *peer, const PeerData::Names &
 		}
 	}
 	for_const (auto ch, toRemove) {
-		if (_sortMode == SortMode::Date) {
+        if (_sortMode == SortMode::Date || _sortMode == SortMode::UnreadFirst) {
 			history->removeChatListEntryByLetter(list, ch);
 		}
 		if (auto list = _index.value(ch)) {
@@ -176,7 +176,7 @@ void IndexedList::adjustNames(Mode list, PeerData *peer, const PeerData::Names &
 			j = _index.insert(ch, new List(_sortMode));
 		}
 		Row *row = j.value()->addToEnd(history);
-		if (_sortMode == SortMode::Date) {
+		if (_sortMode == SortMode::Date || _sortMode == SortMode::UnreadFirst) {
 			history->addChatListEntryByLetter(list, ch, row);
 		}
 	}

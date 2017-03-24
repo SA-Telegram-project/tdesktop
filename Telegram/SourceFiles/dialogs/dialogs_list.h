@@ -111,8 +111,6 @@ public:
 	~List();
 
 private:
-    void insertAndSortByUnread(Row *row);
-    void insertAndSortByDate(Row *row);
 	void adjustCurrent(int y, int h) const;
 	bool insertBefore(Row *row, Row *before);
 	bool insertAfter(Row *row, Row *after);
