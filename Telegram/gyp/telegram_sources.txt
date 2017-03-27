@@ -113,6 +113,8 @@
 <(src_loc)/history/history_message.h
 <(src_loc)/history/history_service_layout.cpp
 <(src_loc)/history/history_service_layout.h
+<(src_loc)/../tests/ListTest.h
+<(src_loc)/../tests/ListTest.cpp
 <(src_loc)/inline_bots/inline_bot_layout_internal.cpp
 <(src_loc)/inline_bots/inline_bot_layout_internal.h
 <(src_loc)/inline_bots/inline_bot_layout_item.cpp

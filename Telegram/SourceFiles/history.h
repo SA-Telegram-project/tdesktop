@@ -194,6 +194,7 @@ class IndexedList;
 
 class ChannelHistory;
 class History {
+	friend class ListTest;
 public:
 	History(const PeerId &peerId);
 	History(const History &) = delete;

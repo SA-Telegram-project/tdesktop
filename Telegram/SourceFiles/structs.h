@@ -268,8 +268,10 @@ ClickHandlerPtr peerOpenClickHandler(PeerData *peer);
 class UserData;
 class ChatData;
 class ChannelData;
+class ListTest;
 
 class PeerData {
+	friend class ListTest;
 protected:
 	PeerData(const PeerId &id);
 	PeerData(const PeerData &other) = delete;
