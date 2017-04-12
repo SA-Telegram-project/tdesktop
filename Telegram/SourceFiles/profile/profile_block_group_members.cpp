@@ -24,6 +24,7 @@ Copyright (c) 2014-2017 John Preston, https://desktop.telegram.org
 #include "ui/widgets/labels.h"
 #include "boxes/confirmbox.h"
 #include "ui/widgets/popup_menu.h"
+#include "ui/widgets/input_fields.h"
 #include "mainwidget.h"
 #include "apiwrap.h"
 #include "observer_peer.h"
@@ -42,6 +43,9 @@ GroupMembersWidget::GroupMembersWidget(QWidget *parent, PeerData *peer, TitleVis
 	, lang(lng_profile_kick)) {
 	_updateOnlineTimer.setSingleShot(true);
 	connect(&_updateOnlineTimer, SIGNAL(timeout()), this, SLOT(onUpdateOnlineDisplay()));
+	connect(*getFilter(), SIGNAL(cancelled()), this, SLOT(onCancel()));
+	connect(*getFilter(), SIGNAL(changed()), this, SLOT(onFilterUpdate()));
+	connect(*getFilter(), SIGNAL(cursorPositionChanged(int,int)), this, SLOT(onFilterCursorMoved(int,int)));
 
 	auto observeEvents = UpdateFlag::AdminsChanged
 		| UpdateFlag::MembersChanged
@@ -64,6 +68,21 @@ GroupMembersWidget::GroupMembersWidget(QWidget *parent, PeerData *peer, TitleVis
 	});
 
 	refreshMembers();
+}
+	
+//filter slot
+void GroupMembersWidget::onCancel() {
+	(*(getFilter()))->setText(QString());
+}
+
+//filter slot
+void GroupMembersWidget::onFilterUpdate() {
+	qDebug() << (*getFilter())->getLastText().trimmed();
+}
+
+//filter slot
+void GroupMembersWidget::onFilterCursorMoved(int from, int to) {
+	
 }
 
 void GroupMembersWidget::addAdmin(PeerData *selectedPeer) {

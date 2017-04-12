@@ -22,9 +22,12 @@ Copyright (c) 2014-2017 John Preston, https://desktop.telegram.org
 
 #include "ui/effects/ripple_animation.h"
 #include "ui/widgets/popup_menu.h"
+#include "ui/widgets/buttons.h"
+#include "ui/widgets/input_fields.h"
 #include "styles/style_profile.h"
 #include "styles/style_widgets.h"
 #include "auth_session.h"
+#include "lang.h"
 
 namespace Profile {
 
@@ -37,14 +40,22 @@ PeerListWidget::PeerListWidget(QWidget *parent, PeerData *peer, const QString &t
 : BlockWidget(parent, peer, title)
 , _st(st)
 , _removeText(removeText)
-, _removeWidth(st::normalFont->width(_removeText)) {
+, _removeWidth(st::normalFont->width(_removeText))
+, _filter(this, st::dialogsFilter, lang(lng_dlg_filter))
+, _cancelSearch(this, st::dialogsCancelSearch) {
+	_filter->setFocusPolicy(Qt::StrongFocus);
+    _filter->customUpDown(true);
 	setMouseTracking(true);
 	subscribe(AuthSession::CurrentDownloaderTaskFinished(), [this] { update(); });
 }
 
+int PeerListWidget::contentTop() const {
+        return emptyTitle() ? 32 : (st::profileBlockMarginTop + st::profileBlockTitleHeight + 32);
+}
+    
 int PeerListWidget::resizeGetHeight(int newWidth) {
 	auto newHeight = getListTop();
-
+	_filter->setGeometryToLeft(_st.left, newHeight - 32, 250, _filter->height());
 	newHeight += _items.size() * st::profileMemberHeight;
 
 	return newHeight + _st.bottom;
