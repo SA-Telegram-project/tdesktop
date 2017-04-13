@@ -78,8 +78,8 @@ public:
 	}
 	void clearItems() {
 		_items.clear();
-}
-void reserveItemsForSize(int size) {
+	}
+	void reserveItemsForSize(int size) {
 		_items.reserve(size);
 	}
 	template <typename Predicate>

@@ -410,8 +410,8 @@ void GroupMembersWidget::updateOnlineCount() {
 
 GroupMembersWidget::Member *GroupMembersWidget::addUser(ChatData *chat, UserData *user) {
 	auto member = computeMember(user);
-	QString search_query = (*getFilter())->getLastText().trimmed();
-	if (user->asUser()->lastName.contains(search_query) || user->asUser()->firstName.contains(search_query)) {
+	QString search_query = (*getFilter())->getLastText().trimmed().toLower();
+	if (user->asUser()->lastName.toLower().contains(search_query) || user->asUser()->firstName.toLower().contains(search_query)) {
 		setItemFlags(member, chat);
 		addItem(member);
 	}
@@ -452,8 +452,8 @@ void GroupMembersWidget::setItemFlags(Item *item, ChatData *chat) {
 
 GroupMembersWidget::Member *GroupMembersWidget::addUser(ChannelData *megagroup, UserData *user) {
 	auto member = computeMember(user);
-	QString search_query = (*getFilter())->getLastText().trimmed();
-	if (user->asUser()->lastName.contains(search_query) || user->asUser()->firstName.contains(search_query)) {
+	QString search_query = (*getFilter())->getLastText().trimmed().toLower();
+	if (user->asUser()->lastName.toLower().contains(search_query) || user->asUser()->firstName.toLower().contains(search_query)) {
 		setItemFlags(member, megagroup);
 		addItem(member);
 	}
