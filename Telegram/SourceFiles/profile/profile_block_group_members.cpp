@@ -72,17 +72,17 @@ GroupMembersWidget::GroupMembersWidget(QWidget *parent, PeerData *peer, TitleVis
 	
 //filter slot
 void GroupMembersWidget::onCancel() {
-	(*(getFilter()))->setText(QString());
+	refreshMembers();
 }
 
 //filter slot
 void GroupMembersWidget::onFilterUpdate() {
-	qDebug() << (*getFilter())->getLastText().trimmed();
+	refreshMembers();
 }
 
 //filter slot
 void GroupMembersWidget::onFilterCursorMoved(int from, int to) {
-	
+	refreshMembers();
 }
 
 void GroupMembersWidget::addAdmin(PeerData *selectedPeer) {
@@ -305,9 +305,9 @@ void GroupMembersWidget::refreshMembers() {
 		}
 		fillMegagroupMembers(megagroup);
 	}
+	
 	sortMembers();
-
-	refreshVisibility();
+	update();
 }
 
 void GroupMembersWidget::refreshLimitReached() {
@@ -393,8 +393,11 @@ void GroupMembersWidget::updateOnlineCount() {
 
 GroupMembersWidget::Member *GroupMembersWidget::addUser(ChatData *chat, UserData *user) {
 	auto member = computeMember(user);
-	setItemFlags(member, chat);
-	addItem(member);
+	QString search_query = (*getFilter())->getLastText().trimmed();
+	if (user->asUser()->lastName.contains(search_query) || user->asUser()->firstName.contains(search_query)) {
+		setItemFlags(member, chat);
+		addItem(member);
+	}
 	return member;
 }
 
@@ -432,8 +435,11 @@ void GroupMembersWidget::setItemFlags(Item *item, ChatData *chat) {
 
 GroupMembersWidget::Member *GroupMembersWidget::addUser(ChannelData *megagroup, UserData *user) {
 	auto member = computeMember(user);
-	setItemFlags(member, megagroup);
-	addItem(member);
+	QString search_query = (*getFilter())->getLastText().trimmed();
+	if (user->asUser()->lastName.contains(search_query) || user->asUser()->firstName.contains(search_query)) {
+		setItemFlags(member, megagroup);
+		addItem(member);
+	}
 	return member;
 }
 
@@ -445,7 +451,6 @@ void GroupMembersWidget::fillMegagroupMembers(ChannelData *megagroup) {
 		clearItems();
 		return;
 	}
-
 	_sortByOnline = (megagroup->membersCount() > 0 && megagroup->membersCount() <= Global::ChatSizeMax());
 
 	auto &membersList = megagroup->mgInfo->lastParticipants;
