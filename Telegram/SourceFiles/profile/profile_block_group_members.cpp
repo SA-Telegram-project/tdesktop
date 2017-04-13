@@ -414,8 +414,16 @@ void GroupMembersWidget::updateOnlineCount() {
 
 GroupMembersWidget::Member *GroupMembersWidget::addUser(ChatData *chat, UserData *user) {
 	auto member = computeMember(user);
-	QString search_query = (*getFilter())->getLastText().trimmed().toLower();
-	if (user->asUser()->lastName.toLower().contains(search_query) || user->asUser()->firstName.toLower().contains(search_query)) {
+	QString name = user->asUser()->firstName.toLower();
+	QString last_name = user->asUser()->lastName.toLower();
+	QStringList search_query = (*getFilter())->getLastText().trimmed().toLower().split(QRegExp("\\s+"));
+	bool match_found = true;
+	for (auto word : search_query) {
+		if (!name.contains(word) && !last_name.contains(word)) {
+			match_found = false;
+		}
+	}
+	if (match_found) {
 		setItemFlags(member, chat);
 		addItem(member);
 	}
@@ -456,8 +464,18 @@ void GroupMembersWidget::setItemFlags(Item *item, ChatData *chat) {
 
 GroupMembersWidget::Member *GroupMembersWidget::addUser(ChannelData *megagroup, UserData *user) {
 	auto member = computeMember(user);
-	QString search_query = (*getFilter())->getLastText().trimmed().toLower();
-	if (user->asUser()->lastName.toLower().contains(search_query) || user->asUser()->firstName.toLower().contains(search_query)) {
+	QString name = user->asUser()->firstName.toLower();
+	QString last_name = user->asUser()->lastName.toLower();
+	QStringList search_query = (*getFilter())->getLastText().trimmed().toLower().split(QRegExp("\\s+"), QString::SkipEmptyParts);
+	bool match_found = true;
+	for (auto word : search_query) {
+		qDebug() << word;
+		if (!name.contains(word) && !last_name.contains(word)) {
+			match_found = false;
+			break;
+		}
+	}
+	if (match_found) {
 		setItemFlags(member, megagroup);
 		addItem(member);
 	}
