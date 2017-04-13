@@ -25,6 +25,7 @@ Copyright (c) 2014-2017 John Preston, https://desktop.telegram.org
 #include "boxes/confirmbox.h"
 #include "ui/widgets/popup_menu.h"
 #include "ui/widgets/input_fields.h"
+#include "ui/widgets/buttons.h"
 #include "mainwidget.h"
 #include "apiwrap.h"
 #include "observer_peer.h"
@@ -43,6 +44,7 @@ GroupMembersWidget::GroupMembersWidget(QWidget *parent, PeerData *peer, TitleVis
 	, lang(lng_profile_kick)) {
 	_updateOnlineTimer.setSingleShot(true);
 	connect(&_updateOnlineTimer, SIGNAL(timeout()), this, SLOT(onUpdateOnlineDisplay()));
+	connect(*getCancelSearch(), SIGNAL(clicked()), this, SLOT(onCancelSearch()));
 	connect(*getFilter(), SIGNAL(cancelled()), this, SLOT(onCancel()));
 	connect(*getFilter(), SIGNAL(changed()), this, SLOT(onFilterUpdate()));
 	connect(*getFilter(), SIGNAL(cursorPositionChanged(int,int)), this, SLOT(onFilterCursorMoved(int,int)));
@@ -75,8 +77,23 @@ void GroupMembersWidget::onCancel() {
 	refreshMembers();
 }
 
+void GroupMembersWidget::onCancelSearch() {
+	(*getCancelSearch())->hideAnimated();
+	(*getFilter())->clear();
+	(*getFilter())->updatePlaceholder();
+	(*getFilter())->update();
+	refreshMembers();
+}
+
 //filter slot
 void GroupMembersWidget::onFilterUpdate() {
+	QString search_query = (*getFilter())->getLastText().trimmed();
+	if (search_query.isEmpty()) {
+		(*getCancelSearch())->hideAnimated();
+        (*getFilter())->updatePlaceholder();
+	} else {
+		(*getCancelSearch())->showAnimated();
+	}
 	refreshMembers();
 }
 

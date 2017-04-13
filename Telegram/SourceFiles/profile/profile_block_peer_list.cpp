@@ -55,7 +55,8 @@ int PeerListWidget::contentTop() const {
     
 int PeerListWidget::resizeGetHeight(int newWidth) {
 	auto newHeight = getListTop();
-	_filter->setGeometryToLeft(_st.left, newHeight - 32, 250, _filter->height());
+	_filter->setGeometry(getListLeft(), newHeight - 32, rowWidth(), _filter->height());
+	_cancelSearch->moveToLeft(getListLeft() + rowWidth() - _cancelSearch->width(), newHeight - 32);
 	newHeight += _items.size() * st::profileMemberHeight;
 
 	return newHeight + _st.bottom;
@@ -77,6 +78,9 @@ void PeerListWidget::paintContents(Painter &p) {
 	auto left = getListLeft();
 	auto top = getListTop();
 	auto memberRowWidth = rowWidth();
+
+	_filter->setGeometry(left, top - 32, memberRowWidth, _filter->height());
+	_cancelSearch->moveToLeft(left + memberRowWidth - _cancelSearch->width(), top - 32);
 
 	auto from = floorclamp(_visibleTop - top, st::profileMemberHeight, 0, _items.size());
 	auto to = ceilclamp(_visibleBottom - top, st::profileMemberHeight, 0, _items.size());

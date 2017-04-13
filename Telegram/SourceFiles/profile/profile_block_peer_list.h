@@ -104,6 +104,10 @@ void reserveItemsForSize(int size) {
 		return &_filter;
 	}
 
+	auto getCancelSearch() {
+		return &_cancelSearch;
+	}
+
 protected:
 	void paintOutlinedRect(Painter &p, int x, int y, int w, int h) const;
 	void refreshVisibility();
