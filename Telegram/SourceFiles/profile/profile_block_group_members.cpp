@@ -82,6 +82,8 @@ void GroupMembersWidget::onCancelSearch() {
 	(*getFilter())->clear();
 	(*getFilter())->updatePlaceholder();
 	(*getFilter())->update();
+	if (auto megagroup = peer()->asMegagroup())
+		clearItems();
 	refreshMembers();
 }
 
@@ -94,6 +96,8 @@ void GroupMembersWidget::onFilterUpdate() {
 	} else {
 		(*getCancelSearch())->showAnimated();
 	}
+	if (auto megagroup = peer()->asMegagroup())
+		clearItems();
 	refreshMembers();
 }
 
