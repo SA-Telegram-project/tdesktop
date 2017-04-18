@@ -22,12 +22,12 @@ Copyright (c) 2014-2017 John Preston, https://desktop.telegram.org
 
 #include "profile/profile_block_widget.h"
 #include "styles/style_profile.h"
-#include "styles/style_dialogs.h"
+#include "styles/style_widgets.h"
 
 namespace Ui {
 class RippleAnimation;
 class PopupMenu;
-class FlatInput;
+class InputField;
 class CrossButton;
 } // namespace Ui
 
@@ -146,8 +146,9 @@ private:
 	void paintItem(Painter &p, int x, int y, Item *item, bool selected, bool selectedRemove, TimeMs ms);
 
 	const style::ProfilePeerListItem &_st;
+	const style::ProfileSearch &_st_search;
     
-    object_ptr<Ui::FlatInput> _filter;
+    object_ptr<Ui::InputField> _filter;
     object_ptr<Ui::CrossButton> _cancelSearch;
 
 	base::lambda<void()> _preloadMoreCallback;
