@@ -26,6 +26,7 @@ Copyright (c) 2014-2017 John Preston, https://desktop.telegram.org
 #include "ui/widgets/input_fields.h"
 #include "styles/style_profile.h"
 #include "styles/style_widgets.h"
+#include "styles/style_boxes.h"
 #include "auth_session.h"
 #include "lang.h"
 
@@ -39,10 +40,11 @@ PeerListWidget::Item::~Item() = default;
 PeerListWidget::PeerListWidget(QWidget *parent, PeerData *peer, const QString &title, const style::ProfilePeerListItem &st, const QString &removeText)
 : BlockWidget(parent, peer, title)
 , _st(st)
+, _st_search(st::chatProfileSearch)
 , _removeText(removeText)
 , _removeWidth(st::normalFont->width(_removeText))
-, _filter(this, st::dialogsFilter, lang(lng_dlg_filter))
-, _cancelSearch(this, st::dialogsCancelSearch) {
+, _filter(this, _st_search.field, lang(lng_dlg_filter))
+, _cancelSearch(this, _st_search.fieldCancel) {
 	_filter->setFocusPolicy(Qt::StrongFocus);
     _filter->customUpDown(true);
 	setMouseTracking(true);
@@ -50,13 +52,13 @@ PeerListWidget::PeerListWidget(QWidget *parent, PeerData *peer, const QString &t
 }
 
 int PeerListWidget::contentTop() const {
-        return emptyTitle() ? 32 : (st::profileBlockMarginTop + st::profileBlockTitleHeight + 32);
+        return emptyTitle() ? _st_search.field.heightMin : (st::profileBlockMarginTop + st::profileBlockTitleHeight + _st_search.field.heightMin);
 }
     
 int PeerListWidget::resizeGetHeight(int newWidth) {
 	auto newHeight = getListTop();
-	_filter->setGeometry(getListLeft(), newHeight - 32, rowWidth(), _filter->height());
-	_cancelSearch->moveToLeft(getListLeft() + rowWidth() - _cancelSearch->width(), newHeight - 32);
+	_filter->setGeometry(getListLeft(), newHeight - _st_search.field.heightMin, rowWidth(), _filter->height());
+	_cancelSearch->moveToLeft(getListLeft() + rowWidth() - _cancelSearch->width(), newHeight - _st_search.field.heightMin);
 	newHeight += _items.size() * st::profileMemberHeight;
 
 	return newHeight + _st.bottom;
@@ -79,8 +81,9 @@ void PeerListWidget::paintContents(Painter &p) {
 	auto top = getListTop();
 	auto memberRowWidth = rowWidth();
 
-	_filter->setGeometry(left, top - 32, memberRowWidth, _filter->height());
-	_cancelSearch->moveToLeft(left + memberRowWidth - _cancelSearch->width(), top - 32);
+	_filter->setGeometry(left + _st_search.fieldIconSkip, top - _st_search.field.heightMin, memberRowWidth, _filter->height());
+	_cancelSearch->moveToLeft(left + memberRowWidth - _cancelSearch->width(), top - _st_search.field.heightMin);
+	_st_search.fieldIcon.paint(p, left, top - _st_search.field.heightMin, memberRowWidth);
 
 	auto from = floorclamp(_visibleTop - top, st::profileMemberHeight, 0, _items.size());
 	auto to = ceilclamp(_visibleBottom - top, st::profileMemberHeight, 0, _items.size());

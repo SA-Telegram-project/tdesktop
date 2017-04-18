@@ -902,3 +902,17 @@ ProfilePeerListItem {
 	statusFgOver: color;
 	statusFgActive: color;
 }
+
+ProfileSearch {
+	bg: color;
+	padding: margins;
+	maxHeight: pixels;
+
+	field: InputField;
+	fieldMinWidth: pixels;
+	fieldIcon: icon;
+	fieldIconSkip: pixels;
+	fieldCancel: CrossButton;
+	fieldCancelSkip: pixels;
+}
+

@@ -72,7 +72,7 @@ GroupMembersWidget::GroupMembersWidget(QWidget *parent, PeerData *peer, TitleVis
 	refreshMembers();
 }
 	
-//filter slot
+
 void GroupMembersWidget::onCancel() {
 	refreshMembers();
 }
@@ -80,19 +80,17 @@ void GroupMembersWidget::onCancel() {
 void GroupMembersWidget::onCancelSearch() {
 	(*getCancelSearch())->hideAnimated();
 	(*getFilter())->clear();
-	(*getFilter())->updatePlaceholder();
 	(*getFilter())->update();
 	if (auto megagroup = peer()->asMegagroup())
 		clearItems();
 	refreshMembers();
 }
 
-//filter slot
+
 void GroupMembersWidget::onFilterUpdate() {
 	QString search_query = (*getFilter())->getLastText().trimmed();
 	if (search_query.isEmpty()) {
 		(*getCancelSearch())->hideAnimated();
-        (*getFilter())->updatePlaceholder();
 	} else {
 		(*getCancelSearch())->showAnimated();
 	}
@@ -101,7 +99,7 @@ void GroupMembersWidget::onFilterUpdate() {
 	refreshMembers();
 }
 
-//filter slot
+
 void GroupMembersWidget::onFilterCursorMoved(int from, int to) {
 	refreshMembers();
 }
@@ -469,7 +467,6 @@ GroupMembersWidget::Member *GroupMembersWidget::addUser(ChannelData *megagroup, 
 	QStringList search_query = (*getFilter())->getLastText().trimmed().toLower().split(QRegExp("\\s+"), QString::SkipEmptyParts);
 	bool match_found = true;
 	for (auto word : search_query) {
-		qDebug() << word;
 		if (!name.contains(word) && !last_name.contains(word)) {
 			match_found = false;
 			break;
