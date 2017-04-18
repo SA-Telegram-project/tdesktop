@@ -1564,6 +1564,10 @@ namespace {
 		return ::self;
 	}
 
+	void setSelf(UserData* ud) {
+		::self = ud;
+	}
+
 	PeerData *peerByName(const QString &username) {
 		QString uname(username.trimmed());
 		for_const (PeerData *peer, peersData) {

@@ -269,6 +269,8 @@
 <(src_loc)/profile/profile_block_group_members.h
 <(src_loc)/profile/profile_block_peer_list.cpp
 <(src_loc)/profile/profile_block_peer_list.h
+<(src_loc)/../tests/ChatFilterTest.cpp
+<(src_loc)/../tests/ChatFilterTest.h
 <(src_loc)/profile/profile_block_settings.cpp
 <(src_loc)/profile/profile_block_settings.h
 <(src_loc)/profile/profile_block_shared_media.cpp

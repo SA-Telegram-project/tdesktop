@@ -148,6 +148,7 @@ namespace App {
 	}
 
 	UserData *self();
+	void setSelf(UserData* ud);
 	PeerData *peerByName(const QString &username);
 	QString peerName(const PeerData *peer, bool forDialogs = false);
 	PhotoData *photo(const PhotoId &photo);

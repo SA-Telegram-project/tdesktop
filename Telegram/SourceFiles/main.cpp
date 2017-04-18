@@ -21,6 +21,8 @@ Copyright (c) 2014-2017 John Preston, https://desktop.telegram.org
 #include "application.h"
 #include "platform/platform_specific.h"
 #include "storage/localstorage.h"
+#include <QTest>
+#include "../tests/ChatFilterTest.h"
 
 int main(int argc, char *argv[]) {
 #ifndef Q_OS_MAC // Retina display support is working fine, others are not.
@@ -42,6 +44,7 @@ int main(int argc, char *argv[]) {
 	int result = 0;
 	{
 		Application app(argc, argv);
+		QTest::qExec(new ChatFilterTest, argc, argv);
 		result = app.exec();
 	}
 
