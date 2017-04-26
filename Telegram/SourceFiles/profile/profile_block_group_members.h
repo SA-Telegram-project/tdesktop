@@ -24,6 +24,8 @@ Copyright (c) 2014-2017 John Preston, https://desktop.telegram.org
 
 namespace Ui {
 class FlatLabel;
+class FlatInput;
+class CrossButton;
 class LeftOutlineButton;
 } // namespace Ui
 
@@ -48,6 +50,12 @@ public:
 	}
 
 	~GroupMembersWidget();
+
+public slots:
+	void onCancel();
+	void onCancelSearch();
+	void onFilterUpdate();
+	void onFilterCursorMoved(int from = -1, int to = -1);
 
 protected:
 	// Resizes content and counts natural widget height for the desired width.

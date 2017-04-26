@@ -22,9 +22,12 @@ Copyright (c) 2014-2017 John Preston, https://desktop.telegram.org
 
 #include "ui/effects/ripple_animation.h"
 #include "ui/widgets/popup_menu.h"
+#include "ui/widgets/buttons.h"
+#include "ui/widgets/input_fields.h"
 #include "styles/style_profile.h"
 #include "styles/style_widgets.h"
 #include "auth_session.h"
+#include "lang.h"
 
 namespace Profile {
 
@@ -37,14 +40,23 @@ PeerListWidget::PeerListWidget(QWidget *parent, PeerData *peer, const QString &t
 : BlockWidget(parent, peer, title)
 , _st(st)
 , _removeText(removeText)
-, _removeWidth(st::normalFont->width(_removeText)) {
+, _removeWidth(st::normalFont->width(_removeText))
+, _filter(this, st::dialogsFilter, lang(lng_dlg_filter))
+, _cancelSearch(this, st::dialogsCancelSearch) {
+	_filter->setFocusPolicy(Qt::StrongFocus);
+    _filter->customUpDown(true);
 	setMouseTracking(true);
 	subscribe(AuthSession::CurrentDownloaderTaskFinished(), [this] { update(); });
 }
 
+int PeerListWidget::contentTop() const {
+        return emptyTitle() ? 32 : (st::profileBlockMarginTop + st::profileBlockTitleHeight + 32);
+}
+    
 int PeerListWidget::resizeGetHeight(int newWidth) {
 	auto newHeight = getListTop();
-
+	_filter->setGeometry(getListLeft(), newHeight - 32, rowWidth(), _filter->height());
+	_cancelSearch->moveToLeft(getListLeft() + rowWidth() - _cancelSearch->width(), newHeight - 32);
 	newHeight += _items.size() * st::profileMemberHeight;
 
 	return newHeight + _st.bottom;
@@ -66,6 +78,9 @@ void PeerListWidget::paintContents(Painter &p) {
 	auto left = getListLeft();
 	auto top = getListTop();
 	auto memberRowWidth = rowWidth();
+
+	_filter->setGeometry(left, top - 32, memberRowWidth, _filter->height());
+	_cancelSearch->moveToLeft(left + memberRowWidth - _cancelSearch->width(), top - 32);
 
 	auto from = floorclamp(_visibleTop - top, st::profileMemberHeight, 0, _items.size());
 	auto to = ceilclamp(_visibleBottom - top, st::profileMemberHeight, 0, _items.size());

@@ -22,10 +22,13 @@ Copyright (c) 2014-2017 John Preston, https://desktop.telegram.org
 
 #include "profile/profile_block_widget.h"
 #include "styles/style_profile.h"
+#include "styles/style_dialogs.h"
 
 namespace Ui {
 class RippleAnimation;
 class PopupMenu;
+class FlatInput;
+class CrossButton;
 } // namespace Ui
 
 namespace Notify {
@@ -35,6 +38,7 @@ struct PeerUpdate;
 namespace Profile {
 
 class PeerListWidget : public BlockWidget {
+
 public:
 	PeerListWidget(QWidget *parent, PeerData *peer, const QString &title, const style::ProfilePeerListItem &st = st::profileMemberItem, const QString &removeText = QString());
 
@@ -55,6 +59,8 @@ public:
 	virtual int getListTop() const {
 		return contentTop();
 	}
+    
+    int contentTop() const override;
 
 	int getListLeft() const;
 
@@ -93,6 +99,14 @@ public:
 	void setUpdateItemCallback(base::lambda<void(Item*)> callback) {
 		_updateItemCallback = std::move(callback);
 	}
+	
+	auto getFilter() {
+		return &_filter;
+	}
+
+	auto getCancelSearch() {
+		return &_cancelSearch;
+	}
 
 protected:
 	void paintOutlinedRect(Painter &p, int x, int y, int w, int h) const;
@@ -119,7 +133,7 @@ protected:
 	virtual Ui::PopupMenu *fillPeerMenu(PeerData *peer) {
 		return nullptr;
 	}
-
+	
 private:
 	void mousePressReleased(Qt::MouseButton button);
 	void updateSelection();
@@ -132,6 +146,9 @@ private:
 	void paintItem(Painter &p, int x, int y, Item *item, bool selected, bool selectedRemove, TimeMs ms);
 
 	const style::ProfilePeerListItem &_st;
+    
+    object_ptr<Ui::FlatInput> _filter;
+    object_ptr<Ui::CrossButton> _cancelSearch;
 
 	base::lambda<void()> _preloadMoreCallback;
 	base::lambda<void(PeerData*)> _selectedCallback;

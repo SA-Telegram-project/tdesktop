@@ -24,6 +24,8 @@ Copyright (c) 2014-2017 John Preston, https://desktop.telegram.org
 #include "ui/widgets/labels.h"
 #include "boxes/confirmbox.h"
 #include "ui/widgets/popup_menu.h"
+#include "ui/widgets/input_fields.h"
+#include "ui/widgets/buttons.h"
 #include "mainwidget.h"
 #include "apiwrap.h"
 #include "observer_peer.h"
@@ -42,6 +44,10 @@ GroupMembersWidget::GroupMembersWidget(QWidget *parent, PeerData *peer, TitleVis
 	, lang(lng_profile_kick)) {
 	_updateOnlineTimer.setSingleShot(true);
 	connect(&_updateOnlineTimer, SIGNAL(timeout()), this, SLOT(onUpdateOnlineDisplay()));
+	connect(*getCancelSearch(), SIGNAL(clicked()), this, SLOT(onCancelSearch()));
+	connect(*getFilter(), SIGNAL(cancelled()), this, SLOT(onCancel()));
+	connect(*getFilter(), SIGNAL(changed()), this, SLOT(onFilterUpdate()));
+	connect(*getFilter(), SIGNAL(cursorPositionChanged(int,int)), this, SLOT(onFilterCursorMoved(int,int)));
 
 	auto observeEvents = UpdateFlag::AdminsChanged
 		| UpdateFlag::MembersChanged
@@ -63,6 +69,40 @@ GroupMembersWidget::GroupMembersWidget(QWidget *parent, PeerData *peer, TitleVis
 		preloadMore();
 	});
 
+	refreshMembers();
+}
+	
+//filter slot
+void GroupMembersWidget::onCancel() {
+	refreshMembers();
+}
+
+void GroupMembersWidget::onCancelSearch() {
+	(*getCancelSearch())->hideAnimated();
+	(*getFilter())->clear();
+	(*getFilter())->updatePlaceholder();
+	(*getFilter())->update();
+	if (auto megagroup = peer()->asMegagroup())
+		clearItems();
+	refreshMembers();
+}
+
+//filter slot
+void GroupMembersWidget::onFilterUpdate() {
+	QString search_query = (*getFilter())->getLastText().trimmed();
+	if (search_query.isEmpty()) {
+		(*getCancelSearch())->hideAnimated();
+        (*getFilter())->updatePlaceholder();
+	} else {
+		(*getCancelSearch())->showAnimated();
+	}
+	if (auto megagroup = peer()->asMegagroup())
+		clearItems();
+	refreshMembers();
+}
+
+//filter slot
+void GroupMembersWidget::onFilterCursorMoved(int from, int to) {
 	refreshMembers();
 }
 
@@ -286,9 +326,9 @@ void GroupMembersWidget::refreshMembers() {
 		}
 		fillMegagroupMembers(megagroup);
 	}
+	
 	sortMembers();
-
-	refreshVisibility();
+	update();
 }
 
 void GroupMembersWidget::refreshLimitReached() {
@@ -374,8 +414,19 @@ void GroupMembersWidget::updateOnlineCount() {
 
 GroupMembersWidget::Member *GroupMembersWidget::addUser(ChatData *chat, UserData *user) {
 	auto member = computeMember(user);
-	setItemFlags(member, chat);
-	addItem(member);
+	QString name = user->asUser()->firstName.toLower();
+	QString last_name = user->asUser()->lastName.toLower();
+	QStringList search_query = (*getFilter())->getLastText().trimmed().toLower().split(QRegExp("\\s+"));
+	bool match_found = true;
+	for (auto word : search_query) {
+		if (!name.contains(word) && !last_name.contains(word)) {
+			match_found = false;
+		}
+	}
+	if (match_found) {
+		setItemFlags(member, chat);
+		addItem(member);
+	}
 	return member;
 }
 
@@ -413,8 +464,21 @@ void GroupMembersWidget::setItemFlags(Item *item, ChatData *chat) {
 
 GroupMembersWidget::Member *GroupMembersWidget::addUser(ChannelData *megagroup, UserData *user) {
 	auto member = computeMember(user);
-	setItemFlags(member, megagroup);
-	addItem(member);
+	QString name = user->asUser()->firstName.toLower();
+	QString last_name = user->asUser()->lastName.toLower();
+	QStringList search_query = (*getFilter())->getLastText().trimmed().toLower().split(QRegExp("\\s+"), QString::SkipEmptyParts);
+	bool match_found = true;
+	for (auto word : search_query) {
+		qDebug() << word;
+		if (!name.contains(word) && !last_name.contains(word)) {
+			match_found = false;
+			break;
+		}
+	}
+	if (match_found) {
+		setItemFlags(member, megagroup);
+		addItem(member);
+	}
 	return member;
 }
 
@@ -426,7 +490,6 @@ void GroupMembersWidget::fillMegagroupMembers(ChannelData *megagroup) {
 		clearItems();
 		return;
 	}
-
 	_sortByOnline = (megagroup->membersCount() > 0 && megagroup->membersCount() <= Global::ChatSizeMax());
 
 	auto &membersList = megagroup->mgInfo->lastParticipants;

@@ -46,7 +46,7 @@ protected:
 	}
 
 	// Where does the block content start (after the title).
-	int contentTop() const;
+	virtual int contentTop() const;
 
 	// Resizes content and counts natural widget height for the desired width.
 	int resizeGetHeight(int newWidth) override = 0;
