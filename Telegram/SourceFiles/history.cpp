@@ -1525,6 +1525,7 @@ void History::setUnreadCount(int newUnreadCount) {
 			}
 		}
 		_unreadCount = newUnreadCount;
+        updateChatListSortPosition();
 		if (auto main = App::main()) {
 			main->unreadCountChanged(this);
 		}
@@ -1806,13 +1807,17 @@ namespace {
 	uint32 _dialogsPosToTopShift = 0x80000000UL;
 }
 
+inline uint64 unreadDialogPos(const QDateTime &date) {
+    return ((uint64(date.toTime_t()) << 28) | (++_dialogsPosToTopShift)) | 0xF000000000000000;
+}
+
 inline uint64 dialogPosFromDate(const QDateTime &date) {
 	if (date.isNull()) return 0;
-	return (uint64(date.toTime_t()) << 32) | (++_dialogsPosToTopShift);
+	return (uint64(date.toTime_t()) << 28) | (++_dialogsPosToTopShift);
 }
 
 inline uint64 pinnedDialogPos(int pinnedIndex) {
-	return 0xFFFFFFFF00000000ULL + pinnedIndex;
+	return 0xFFFFFFFFFFFFFFF0ULL + pinnedIndex;
 }
 
 void History::setLastMessage(HistoryItem *msg) {
@@ -1854,8 +1859,13 @@ void History::updateChatListSortPosition() {
 		}
 		return lastMsgDate;
 	};
-
-	_sortKeyInChatList = isPinnedDialog() ? pinnedDialogPos(_pinnedIndex) : dialogPosFromDate(chatListDate());
+    
+    if(!isPinnedDialog() && (Dialogs::SortMode)cSortMode() == Dialogs::SortMode::UnreadFirst && unreadCount() > 0) {
+        _sortKeyInChatList = unreadDialogPos(chatListDate());
+    } else {
+        _sortKeyInChatList = isPinnedDialog() ? pinnedDialogPos(_pinnedIndex) : dialogPosFromDate(chatListDate());
+    }
+    
 	if (auto m = App::main()) {
 		if (needUpdateInChatList()) {
 			if (_sortKeyInChatList) {

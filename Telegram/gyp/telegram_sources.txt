@@ -18,6 +18,8 @@
 <(src_loc)/boxes/connectionbox.h
 <(src_loc)/boxes/contactsbox.cpp
 <(src_loc)/boxes/contactsbox.h
+<(src_loc)/boxes/dialogsortbox.cpp
+<(src_loc)/boxes/dialogsortbox.h
 <(src_loc)/boxes/downloadpathbox.cpp
 <(src_loc)/boxes/downloadpathbox.h
 <(src_loc)/boxes/editcolorbox.cpp

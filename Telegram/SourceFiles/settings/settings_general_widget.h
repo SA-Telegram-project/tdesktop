@@ -84,7 +84,7 @@ protected:
 	int resizeGetHeight(int newWidth) override;
 
 private slots:
-	void onChangeLanguage();
+    void onChangeLanguage();
 
 #ifndef TDESKTOP_DISABLE_AUTOUPDATE
 	void onUpdateAutomatically();
@@ -106,7 +106,7 @@ private:
 	void updateWorkmode();
 	void chooseCustomLang();
 
-	object_ptr<Ui::LinkButton> _changeLanguage;
+    object_ptr<Ui::LinkButton> _changeLanguage;
 #ifndef TDESKTOP_DISABLE_AUTOUPDATE
 	object_ptr<Ui::Checkbox> _updateAutomatically = { nullptr };
 	object_ptr<Ui::WidgetSlideWrap<UpdateStateRow>> _updateRow = { nullptr };

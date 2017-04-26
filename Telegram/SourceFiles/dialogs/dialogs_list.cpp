@@ -57,7 +57,7 @@ Row *List::addToEnd(History *history) {
 	_rowByPeer.insert(history->peer->id, result);
 	++_count;
 	_end->_prev = result;
-	if (_sortMode == SortMode::Date) {
+    if (_sortMode == SortMode::Date || _sortMode == SortMode::UnreadFirst) {
 		adjustByPos(result);
 	}
 	return result;
@@ -152,26 +152,26 @@ Row *List::addByName(History *history) {
 }
 
 void List::adjustByPos(Row *row) {
-	if (_sortMode != SortMode::Date || !_begin) return;
-
-	Row *change = row;
-	if (change != _begin && _begin->history()->sortKeyInChatList() < row->history()->sortKeyInChatList()) {
-		change = _begin;
-	} else {
-		while (change->_prev && change->_prev->history()->sortKeyInChatList() < row->history()->sortKeyInChatList()) {
-			change = change->_prev;
-		}
-	}
-	if (!insertBefore(row, change)) {
-		if (change->_next != _end && _end->_prev->history()->sortKeyInChatList() > row->history()->sortKeyInChatList()) {
-			change = _end->_prev;
-		} else {
-			while (change->_next != _end && change->_next->history()->sortKeyInChatList() > row->history()->sortKeyInChatList()) {
-				change = change->_next;
-			}
-		}
-		insertAfter(row, change);
-	}
+    if (!(_sortMode == SortMode::Date || _sortMode == SortMode::UnreadFirst) || !_begin) return;
+    
+    Row *change = row;
+    if (change != _begin && _begin->history()->sortKeyInChatList() < row->history()->sortKeyInChatList()) {
+        change = _begin;
+    } else {
+        while (change->_prev && change->_prev->history()->sortKeyInChatList() < row->history()->sortKeyInChatList()) {
+            change = change->_prev;
+        }
+    }
+    if (!insertBefore(row, change)) {
+        if (change->_next != _end && _end->_prev->history()->sortKeyInChatList() > row->history()->sortKeyInChatList()) {
+            change = _end->_prev;
+        } else {
+            while (change->_next != _end && change->_next->history()->sortKeyInChatList() > row->history()->sortKeyInChatList()) {
+                change = change->_next;
+            }
+        }
+        insertAfter(row, change);
+    }
 }
 
 bool List::moveToTop(PeerId peerId) {

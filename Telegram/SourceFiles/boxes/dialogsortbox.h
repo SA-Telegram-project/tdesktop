@@ -20,21 +20,29 @@ Copyright (c) 2014-2017 John Preston, https://desktop.telegram.org
 */
 #pragma once
 
-namespace Dialogs {
+#include "boxes/abstractbox.h"
+#include "dialogs/dialogs_common.h"
+#include "lang.h"
 
-class Row;
-using RowsByLetter = QMap<QChar, Row*>;
+namespace Ui {
+class Radiobutton;
+} // namespace Ui
 
-enum class SortMode {
-	Date = 0x00,
-	Name = 0x01,
-	Add  = 0x02,
-    UnreadFirst = 0x03,
+class DialogSortModeBox : public BoxContent {
+    Q_OBJECT
+
+public:
+        DialogSortModeBox(QWidget*) {
+    }
+
+protected:
+    void prepare() override;
+
+private:
+        void saveDialogSortMode();
+        void restoreDialogSortMode();
+
+        QVector<Ui::Radiobutton*> _sortModes;
+        QMap<QString, Dialogs::SortMode> modes {std::make_pair(QString(lang(lng_settings_dialog_sort_mode_default)), Dialogs::SortMode::Date),
+                    std::make_pair(QString(lang(lng_settings_dialog_sort_mode_unread_first)), Dialogs::SortMode::UnreadFirst)};
 };
-
-enum class Mode {
-	All       = 0x00,
-	Important = 0x01,
-};
-
-} // namespace Dialogs

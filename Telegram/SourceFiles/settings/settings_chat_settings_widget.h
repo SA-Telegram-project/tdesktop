@@ -102,6 +102,7 @@ private slots:
 	void onSendByCtrlEnter();
 	void onAutomaticMediaDownloadSettings();
 	void onManageStickerSets();
+    void onDialogSortMode();
 
 private:
 	void createControls();
@@ -109,6 +110,7 @@ private:
 	object_ptr<Ui::Checkbox> _replaceEmoji = { nullptr };
 	object_ptr<Ui::WidgetSlideWrap<Ui::LinkButton>> _viewList = { nullptr };
 	object_ptr<Ui::Checkbox> _dontAskDownloadPath = { nullptr };
+    object_ptr<Ui::LinkButton> _changeDialogSortMode = { nullptr };
 
 #ifndef OS_WIN_STORE
 	object_ptr<Ui::WidgetSlideWrap<DownloadPathState>> _downloadPath = { nullptr };
